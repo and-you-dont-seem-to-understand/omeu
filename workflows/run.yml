@@ -1,0 +1,34 @@
+name: RUN DAILY
+
+on:
+  schedule:
+    - cron: "0 0 * * *"
+  workflow_dispatch:
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+      - uses: actions/setup-python@v4
+        with:
+          python-version: "3.11"
+      - name: Install
+        run: pip install requests beautifulsoup4 pycryptodome discord-webhook python-dotenv
+      - name: Run
+        env:
+          URL: ${{ secrets.URL }}
+          TARGET_CLASS: ${{ secrets.TARGET_CLASS }}
+          START_TEXT: ${{ secrets.START_TEXT }}
+          WEBHOOK: ${{ secrets.WEBHOOK }}
+          KEY: ${{ secrets.KEY }}
+          NONCE: ${{ secrets.NONCE }}
+        run: python run.py
+      - name: Update data
+        run: |
+          git config --global user.name '玲音'
+          git config --global user.email '149897907+lainbot@users.noreply.github.com'
+          git add data.txt
+          git diff-index --quiet HEAD || git commit -m "Update data.txt"
+          git push
